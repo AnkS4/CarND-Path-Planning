@@ -111,10 +111,31 @@ int main() {
 				  
 				  check_car_s += ((double)prev_size*0.02*check_speed);
 				  
+				  // If other car is ahead and is closer than 30m
 				  if((check_car_s>car_s) && ((check_car_s-car_s)<30))
-				      too_close = true;
+				  {
+					  too_close = true;
+					  // Do single lane change
+					  if(lane=0)
+					  {
+						  // Check for cars in lane 1
+						  lane = 1;
+					  }
+					  else if(lane=1)
+					  {
+						  // Check for cars in lane 0 & 2
+						  lane = 0;
+						  
+						 // lane = 2;
+					  }
+					  else if(lane=2)
+					  {
+						  // Check for cars in lane 1
+						  lane = 1;
+					  }
 			  }
 		  }
+	  }
 		  
 		  //std::cout << ref_vel << "\n";
 		  
