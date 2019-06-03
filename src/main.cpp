@@ -131,7 +131,7 @@ int main() {
 								   double check_speed = sqrt(vx*vx+vy*vy);
 								   double check_car_s = sensor_fusion[j][5];
 								   check_car_s += ((double)prev_size*0.02*check_speed);
-								   if(std::abs(check_car_s-car_s)<safe_distance)
+								   if(std::abs(check_car_s-car_s)>safe_distance)
 								       lane = 1;
 								 }
 							 }
@@ -151,7 +151,7 @@ int main() {
 								   double check_speed = sqrt(vx*vx+vy*vy);
 								   double check_car_s = sensor_fusion[j][5];
 								   check_car_s += ((double)prev_size*0.02*check_speed);
-								   if(std::abs(check_car_s-car_s)<safe_distance)
+								   if(std::abs(check_car_s-car_s)>safe_distance)
 								   {
 								       lane = 0;
 								       change_lane_0 = true;
@@ -172,7 +172,7 @@ int main() {
 								   double check_speed = sqrt(vx*vx+vy*vy);
 								   double check_car_s = sensor_fusion[j][5];
 								   check_car_s += ((double)prev_size*0.02*check_speed);
-								   if(std::abs(check_car_s-car_s)<safe_distance)
+								   if(std::abs(check_car_s-car_s)>safe_distance)
 								       lane = 2;
 								 }
 							 }
