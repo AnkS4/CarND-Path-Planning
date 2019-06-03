@@ -97,8 +97,8 @@ int main() {
           
           if(prev_size > 0)
 			  car_s = end_path_s;
-		  int safe_distance = 30;
-		  int safe_distance_behind = 10;
+		  int safe_distance = 40;
+		  int safe_distance_behind = 20;
 		  bool too_close = false;
 		  for(int i=0; i<sensor_fusion.size(); i++)
 		  {
