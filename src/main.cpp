@@ -8,6 +8,7 @@
 #include "helpers.h"
 #include "json.hpp"
 #include "spline.h"
+#include <cmath>
 
 // for convenience
 using nlohmann::json;
@@ -96,7 +97,7 @@ int main() {
           
           if(prev_size > 0)
 			  car_s = end_path_s;
-		  
+		  int safe_distance = 30;
 		  bool too_close = false;
 		  for(int i=0; i<sensor_fusion.size(); i++)
 		  {
@@ -112,26 +113,70 @@ int main() {
 				  check_car_s += ((double)prev_size*0.02*check_speed);
 				  
 				  // If other car is ahead and is closer than 30m
-				  if((check_car_s>car_s) && ((check_car_s-car_s)<30))
+				  if((check_car_s>car_s) && ((check_car_s-car_s)<safe_distance))
 				  {
 					  too_close = true;
 					  // Do single lane change
-					  if(lane=0)
+					  if(lane==0 || lane==2)
 					  {
 						  // Check for cars in lane 1
-						  lane = 1;
-					  }
-					  else if(lane=1)
+						  int check_lane = 1;
+						   for(int j=0; j<sensor_fusion.size(); j++)
+						   {
+							   float d = sensor_fusion[j][6];
+							   if(d < (2+4*check_lane+2) && d > (2+4*check_lane-2))
+							   {
+								   double vx = sensor_fusion[j][3];
+								   double vy = sensor_fusion[j][4];
+								   double check_speed = sqrt(vx*vx+vy*vy);
+								   double check_car_s = sensor_fusion[j][5];
+								   check_car_s += ((double)prev_size*0.02*check_speed);
+								   if(std::abs(check_car_s-car_s)<safe_distance)
+								       lane = 1;
+								 }
+							 }
+						 }
+					  else if(lane==1)
 					  {
 						  // Check for cars in lane 0 & 2
-						  lane = 0;
-						  
-						 // lane = 2;
-					  }
-					  else if(lane=2)
-					  {
-						  // Check for cars in lane 1
-						  lane = 1;
+						  bool change_lane_0 = false;
+						  int check_lane = 0;
+						  for(int j=0; j<sensor_fusion.size(); j++)
+						   {
+							   float d = sensor_fusion[j][6];
+							   if(d < (2+4*check_lane+2) && d > (2+4*check_lane-2))
+							   {
+								   double vx = sensor_fusion[j][3];
+								   double vy = sensor_fusion[j][4];
+								   double check_speed = sqrt(vx*vx+vy*vy);
+								   double check_car_s = sensor_fusion[j][5];
+								   check_car_s += ((double)prev_size*0.02*check_speed);
+								   if(std::abs(check_car_s-car_s)<safe_distance)
+								   {
+								       lane = 0;
+								       change_lane_0 = true;
+								   }
+								 }
+							 }
+							 
+							 if(!(change_lane_0))
+							 {
+							 int check_lane = 2;
+							 for(int j=0; j<sensor_fusion.size(); j++)
+							 {
+							   float d = sensor_fusion[j][6];
+							   if(d < (2+4*check_lane+2) && d > (2+4*check_lane-2))
+							   {
+								   double vx = sensor_fusion[j][3];
+								   double vy = sensor_fusion[j][4];
+								   double check_speed = sqrt(vx*vx+vy*vy);
+								   double check_car_s = sensor_fusion[j][5];
+								   check_car_s += ((double)prev_size*0.02*check_speed);
+								   if(std::abs(check_car_s-car_s)<safe_distance)
+								       lane = 2;
+								 }
+							 }
+						 }
 					  }
 			  }
 		  }
