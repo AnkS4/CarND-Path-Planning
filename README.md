@@ -1,5 +1,26 @@
 # CarND-Path-Planning-Project
 Self-Driving Car Engineer Nanodegree Program
+
+## Implentation
+
+#### For generating new path for the vehicle I used the following algorithm:
+* If previous path is non-zero, make last point of the previous list's s value as current s value.
+* If there's vehicle ahead of you within safe distance, try to do single lane shift.
+  Change the lane if the lane the vehicle is shifting to has no vehicles ahead or behind safe distances.
+* If other vehicle is within safe distance, keep decreasing our vehicle's speed.
+  Otherwise, keep increasing the speed till it's around ~49 mph.
+
+* Create waypoints for trajectory generation.
+* If previous path has lesser than two points, generate another point in the path backwards using vehicle angles.
+  Else, use last two points in the previous path.
+* Add this two points to the waypoints as a starting reference.
+* Add three more evenly spaced points ahead of the reference points in the trajectory.
+* Use spline for smoother trajectory.
+* Create path planner.
+* Add previous path points to it.
+* Also, add the spline x, y waypoints to it till it has desired number of points, in this case 50.
+
+
    
 ### Simulator.
 You can download the Term3 Simulator which contains the Path Planning Project from the [releases tab (https://github.com/udacity/self-driving-car-sim/releases/tag/T3_v1.2).  
