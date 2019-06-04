@@ -20,7 +20,8 @@ Self-Driving Car Engineer Nanodegree Program
 * Add previous path points to it.
 * Also, add the spline x, y waypoints to it till it has desired number of points, in this case 50.
 
-
+#### Vehicle was able to pass more than 4.32 miles without incident
+![Screenshot](./images/path_planning.png)
    
 ### Simulator.
 You can download the Term3 Simulator which contains the Path Planning Project from the [releases tab (https://github.com/udacity/self-driving-car-sim/releases/tag/T3_v1.2).  
