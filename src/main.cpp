@@ -100,97 +100,49 @@ int main() {
 		  int safe_distance = 40;
 		  int safe_distance_behind = 20;
 		  bool too_close = false;
+		  bool free_right = true;
+		  bool free_left = true;
+		  
 		  for(int i=0; i<sensor_fusion.size(); i++)
 		  {
 			  // when other car in same lane
-			  float d = sensor_fusion[i][6]; //4
+			  float d = sensor_fusion[i][6];
+			  
+			  double vx = sensor_fusion[i][3];
+			  double vy = sensor_fusion[i][4];
+			  double check_speed = sqrt(vx*vx+vy*vy);
+			  double check_car_s = sensor_fusion[i][5];
+			  check_car_s += ((double)prev_size*0.02*check_speed);
+			  
 			  if(d < (2+4*lane+2) && d > (2+4*lane-2))
-			  {
-				  double vx = sensor_fusion[i][3]; //1
-				  double vy = sensor_fusion[i][4]; //2
-				  double check_speed = sqrt(vx*vx+vy*vy);
-				  double check_car_s = sensor_fusion[i][5]; //3
-				  
-				  check_car_s += ((double)prev_size*0.02*check_speed);
-				  
+			  {  
 				  // If other car is ahead and is closer than 30m
 				  if((check_car_s>car_s) && ((check_car_s-car_s)<safe_distance))
-				  {
-					  too_close = true;
-					  // Do single lane change
-					  if(lane==0 || lane==2)
-					  {
-						  // Check for cars in lane 1
-						  int check_lane = 1;
-						   for(int j=0; j<sensor_fusion.size(); j++)
-						   {
-							   float d = sensor_fusion[j][6];
-							   if(d < (2+4*check_lane+2) && d > (2+4*check_lane-2))
-							   {
-								   double vx = sensor_fusion[j][3];
-								   double vy = sensor_fusion[j][4];
-								   double check_speed = sqrt(vx*vx+vy*vy);
-								   double check_car_s = sensor_fusion[j][5];
-								   check_car_s += ((double)prev_size*0.02*check_speed);
-								   if (((check_car_s>car_s)&&((check_car_s-car_s)>safe_distance))||
-								   ((check_car_s<car_s)&&((car_s-check_car_s)>safe_distance_behind)))
-								       lane = 1;
-								 }
-							 }
-						 }
-					  else if(lane==1)
-					  {
-						  // Check for cars in lane 0 & 2
-						  bool change_lane_0 = false;
-						  int check_lane = 0;
-						  for(int j=0; j<sensor_fusion.size(); j++)
-						   {
-							   float d = sensor_fusion[j][6];
-							   if(d < (2+4*check_lane+2) && d > (2+4*check_lane-2))
-							   {
-								   double vx = sensor_fusion[j][3];
-								   double vy = sensor_fusion[j][4];
-								   double check_speed = sqrt(vx*vx+vy*vy);
-								   double check_car_s = sensor_fusion[j][5];
-								   check_car_s += ((double)prev_size*0.02*check_speed);
-								   if (((check_car_s>car_s)&&((check_car_s-car_s)>safe_distance))||
-								   ((check_car_s<car_s)&&((car_s-check_car_s)>safe_distance_behind)))
-								   {
-								       lane = 0;
-								       change_lane_0 = true;
-								   }
-								 }
-							 }
-							 
-							 if(!(change_lane_0))
-							 {
-							 int check_lane = 2;
-							 for(int j=0; j<sensor_fusion.size(); j++)
-							 {
-							   float d = sensor_fusion[j][6];
-							   if(d < (2+4*check_lane+2) && d > (2+4*check_lane-2))
-							   {
-								   double vx = sensor_fusion[j][3];
-								   double vy = sensor_fusion[j][4];
-								   double check_speed = sqrt(vx*vx+vy*vy);
-								   double check_car_s = sensor_fusion[j][5];
-								   check_car_s += ((double)prev_size*0.02*check_speed);
-								   if (((check_car_s>car_s)&&((check_car_s-car_s)>safe_distance))||
-								   ((check_car_s<car_s)&&((car_s-check_car_s)>safe_distance_behind)))
-								       lane = 2;
-								 }
-							 }
-						 }
-					  }
+				      too_close = true;
+			  }
+			  if(d < (2+4*(lane+1)+2) && d > (2+4*(lane+1)-2))
+			  {
+				  if(((check_car_s>car_s) && ((check_car_s-car_s)<safe_distance)) || ((check_car_s<car_s)&&((car_s-check_car_s)<safe_distance_behind)))
+				      free_right = false;
+			  }
+			  if(d < (2+4*(lane-1)+2) && d > (2+4*(lane-1)-2))
+			  {
+				  if(((check_car_s>car_s) && ((check_car_s-car_s)<safe_distance)) || ((check_car_s<car_s)&&((car_s-check_car_s)<safe_distance_behind)))
+				      free_left = false;
 			  }
 		  }
-	  }
 		  
 		  //std::cout << ref_vel << "\n";
 		  
 		  if(too_close)
+		  {
 		      ref_vel -= 0.2237; //~10m/s
-		  else if(ref_vel < 49-0.2237)
+		      if((free_right)&&(lane!=2))
+		          lane += 1;
+		       if((free_left)&&(lane!=0))
+		           lane -= 1;
+		   }
+		  else if(ref_vel < 49.5-0.2237)
 		      ref_vel += 0.2237;
 
           // Create list for waypoints
@@ -230,17 +182,12 @@ int main() {
 		}
 		
 		// Add evenly spaced points in Frenet Coordinates
-		vector<double> next_wp0 = getXY(car_s+30, (2+4*lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
-		vector<double> next_wp1 = getXY(car_s+60, (2+4*lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
-		vector<double> next_wp2 = getXY(car_s+90, (2+4*lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
-		
-		ptsx.push_back(next_wp0[0]);
-		ptsx.push_back(next_wp1[0]);
-		ptsx.push_back(next_wp2[0]);
-		
-		ptsy.push_back(next_wp0[1]);
-		ptsy.push_back(next_wp1[1]);
-		ptsy.push_back(next_wp2[1]);
+		for(int i=0; i<5; i++)
+		{
+			vector<double> next_wp = getXY(car_s+(i+1)*30, (2+4*lane), map_waypoints_s, map_waypoints_x, map_waypoints_y);
+			ptsx.push_back(next_wp[0]);
+			ptsy.push_back(next_wp[1]);
+		}
 		
 		// Adjust points to create local coordinates
 		for(int i=0; i<ptsx.size(); i++)
