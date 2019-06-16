@@ -6,7 +6,7 @@ Self-Driving Car Engineer Nanodegree Program
 #### For generating new path for the vehicle I used the following algorithm
 * If previous path is non-zero, make last point of the previous list's s value as current s value.
 
-*Using Sensor Fusion Data do make lane change decision:*
+*Using Sensor Fusion Data make lane change decision:*
 * For all the cars, predict s value for after 0.02sec using it's current speed
 * if detected car lane is in our lane and if it'll be closer than safe distance
      - mark `too_close` is true
@@ -16,13 +16,13 @@ Self-Driving Car Engineer Nanodegree Program
      - mark `free_left` as false
 
 * if `too_close`
-    then reduce the `ref_vel`
-    if `free_right` and lane is less than 2
-        then shift vehicle to right
-    if `free_left` and lane is greater than 0
-        then shift vehicle to left
+    - then reduce the `ref_vel`
+    * if `free_right` and lane is less than 2
+        - then shift vehicle to right
+    * if `free_left` and lane is greater than 0
+        - then shift vehicle to left
 * else if `ref_vel` is less than `49.5-0.2237`
-      then increase the `ref_vel`
+     - then increase the `ref_vel`
 
 * Create waypoints for trajectory generation.
 * If previous path has lesser than two points, generate another point in the path backwards using vehicle angles.
