@@ -3,18 +3,32 @@ Self-Driving Car Engineer Nanodegree Program
 
 ## Implentation
 
-#### For generating new path for the vehicle I used the following algorithm:
+#### For generating new path for the vehicle I used the following algorithm
 * If previous path is non-zero, make last point of the previous list's s value as current s value.
-* If there's vehicle ahead of you within safe distance, try to do single lane shift.
-  Change the lane if the lane the vehicle is shifting to has no vehicles ahead or behind safe distances.
-* If other vehicle is within safe distance, keep decreasing our vehicle's speed.
-  Otherwise, keep increasing the speed till it's around ~49 mph.
+
+*Using Sensor Fusion Data do make lane change decision:*
+* For all the cars, predict s value for after 0.02sec using it's current speed
+* if detected car lane is in our lane and if it'll be closer than safe distance
+     - mark `too_close` is true
+* if detected car lane is in the right lane and if it'll be closer than safe distance
+     - mark `free_right` as false
+* if detected car lane is in the left lane and if it'll be closer than safe distanc
+     - mark `free_left` as false
+
+* if `too_close`
+    then reduce the `ref_vel`
+    if `free_right` and lane is less than 2
+        then shift vehicle to right
+    if `free_left` and lane is greater than 0
+        then shift vehicle to left
+* else if `ref_vel` is less than `49.5-0.2237`
+      then increase the `ref_vel`
 
 * Create waypoints for trajectory generation.
 * If previous path has lesser than two points, generate another point in the path backwards using vehicle angles.
   Else, use last two points in the previous path.
 * Add this two points to the waypoints as a starting reference.
-* Add three more evenly spaced points ahead of the reference points in the trajectory.
+* Add five more evenly spaced fretnet points ahead of the reference points in the trajectory.
 * Use spline for smoother trajectory.
 * Create path planner.
 * Add previous path points to it.
